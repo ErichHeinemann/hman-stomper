@@ -8,7 +8,8 @@ Since the last years some companies provided some professional Stompboxes for gu
 After some research I come to the final to build a stomper like this based on a sample player.
 I did it because I had a lot of concerns if a ready stomper from Ortega or Roland could match to the needs which I had.
 
-If You do not have any idea which type of box I am writing about:(Google)[https://www.google.de/search?client=firefox-b-ab&dcr=0&biw=1440&bih=805&tbm=isch&sa=1&ei=w9ltWsfpJsH3kwXo35KYCg&q=stompbox+wood&oq=stompbox+wood&gs_l=psy-ab.3...102477.103193.0.103405.5.5.0.0.0.0.81.359.5.5.0....0...1c.1.64.psy-ab..0.2.153...0j0i30k1j0i19k1j0i30i19k1.0.5D-yvMPc-pk]
+If You do not have any idea which type of box I am writing about:[Google](https://www.google.de/search?client=firefox-b-ab&dcr=0&biw=1440&bih=805&tbm=isch&sa=1&ei=w9ltWsfpJsH3kwXo35KYCg&q=stompbox+wood&oq=stompbox+wood&gs_l=psy-ab.3...102477.103193.0.103405.5.5.0.0.0.0.81.359.5.5.0....0...1c.1.64.psy-ab..0.2.153...0j0i30k1j0i19k1j0i30i19k1.0.5D-yvMPc-pk) most of these Stomboxes are only using wood and a piezo or a mic or a guitar-pickup.
+My one will use a small microprocessor (ESP32) and play different sounds based on samples.
 
 First I did not have so many technical needs, the only requirement was: The sounds should match to the music and it should be simple as possible to select the sounds on stage.
 Ok, thats not a well defined requirement but many requirements could be derived from it.
