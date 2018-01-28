@@ -32,31 +32,30 @@ The microprocessor which I use for testing is an ESP32 PICO D4. The DACs which I
 Not yet tested is an alternative using Delta-Sigma-Converter which works simply with one transistor.
 
 Connections:
-ESP32 - DAC98357A or PCM5102
- GPIO 26  - BCK-Pin  
- GPIO 25  - LRCK-Pin 
- GPIO 33  - DIN-Pin 
+- ESP32 - DAC98357A or PCM5102
+- GPIO 26  - BCK-Pin  
+- GPIO 25  - LRCK-Pin 
+- GPIO 33  - DIN-Pin 
  
-special for PCM5102 
-VCC - not connected!
-3.3V -> 3.3 Volt (analog side)
-GND -> ( Analog or Digital GND??)
-FLT (Filter)  -> GND
-DMP (DEMP?) -> GND (eigentlich analog Ground)
-SCL -> GND
-BCK -> GPIO 26
-DIN  -> GPIO 33
-LCK -> GPIO 25
-FMT(Filter) -> GND
-XMT -> 3.3V (0V = Mute, 3.3V = unmute)
+- special for PCM5102 
+- VCC - not connected!
+- 3.3V -> 3.3 Volt (analog side)
+- GND -> ( Analog or Digital GND??)
+- FLT (Filter)  -> GND
+- DMP (DEMP?) -> GND (eigentlich analog Ground)
+- SCL -> GND
+- BCK -> GPIO 26
+- DIN  -> GPIO 33
+- LCK -> GPIO 25
+- XMT -> 3.3V (0V = Mute, 3.3V = unmute)
 
 The MicroSD-Card-Reader is an active one which transforms the voltage locally from 5volts to 3.3volts.
-ESP32    SD-Card - Adapter (active Adapter for Microsd-Cards)
- GPIO 23 = MOSI
- GPIO 19 = MISO
- GPIO 18 = CLK / SCLK
- GPIO 05 = CS
- GND = GND
+- ESP32    SD-Card - Adapter (active Adapter for Microsd-Cards)
+- GPIO 23 = MOSI
+- GPIO 19 = MISO
+- GPIO 18 = CLK / SCLK
+- GPIO 05 = CS
+- GND = GND
 
 
 A passive adaptor does not work without additional resistors. If You would like to only use a simple Micro-SD to SD-Card-Adaptor, then pullup all pins (MOSI, MISO, CLK) to 3.3 via 10KOhm resistors.
