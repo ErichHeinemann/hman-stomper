@@ -31,13 +31,15 @@ The sound should be triggered by a simple Piezo-Element.
 The microprocessor which I use for testing is an ESP32 PICO D4. The DACs which I am testing are PCM1502a and DAC98357A.
 Not yet tested is an alternative using Delta-Sigma-Converter which works simply with one transistor.
 
+Most work is done by the library created by Earlee Philhower. You need this library to start: [Audio8266](https://github.com/earlephilhower/ESP8266Audio) This Lib provides a lot of functions to play music like a mediaplayer but less functions around making music out of the perspective of an musician. I try to fix this a bit.
+
 Connections:
 - ESP32 - DAC98357A or PCM5102
 - GPIO 26  - BCK-Pin  
 - GPIO 25  - LRCK-Pin 
 - GPIO 33  - DIN-Pin 
  
-- special for PCM5102 
+ special for PCM5102 
 - VCC - not connected!
 - 3.3V -> 3.3 Volt (analog side)
 - GND -> ( Analog or Digital GND??)
