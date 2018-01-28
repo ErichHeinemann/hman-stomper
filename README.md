@@ -71,6 +71,6 @@ The maximum hardware-setup then: 1 ESP32-Devboard, 1 Piezo, DAC pcm5102, 1x SDCa
 Ii used a USB-Powerbank as the Powersupply which works well.
 
 Any comments:
-stomp@hman-project.de
+stomp@hman-projects.de
 
 Erich Heinemann
