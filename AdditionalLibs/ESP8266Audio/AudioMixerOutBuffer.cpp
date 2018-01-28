@@ -40,6 +40,7 @@
 #include <Arduino.h>
 #include "AudioMixerOutBuffer.h"
 
+// #define AudioDebug;
 
 // build instance
 AudioMixerOutBuffer::AudioMixerOutBuffer(int buffSizeSamples, AudioOutput *dest )
@@ -121,10 +122,6 @@ bool AudioMixerOutBuffer:: SetMixChannels(int channels , int mixChannelNo)
 
 
 
-
-
-
-
 bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
 {
   bool storeSampleFlag = false; // internal flag, true if we were able to store the current sample in the store
@@ -143,23 +140,30 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
      rightComuSample += sample[RIGHTCHANNEL]; // equivalent of value = value + Mat_data_vektor[i];
      storeSampleFlag = true;  
      vreturn = true;
-     updatedSample[ mixChannelNo] == 1;
+     updatedSample[ mixChannelNo] = 1;
   }
   
 
   
   // First, try and fill I2S...
   if ( filled ) {
+   #ifdef AudioDebug 
+     Serial.println( "MOB filled" );
+   #endif
+  
     while ( readPtr != writePtr ) {
       int16_t s[2] = {leftSample[readPtr], rightSample[readPtr]};
+      #ifdef AudioDebug 
+        Serial.println( "MOB Sink ConsumeSample" );
+      #endif
 	  if ( !sink->ConsumeSample( s )) break; // Can't stuff any more in I2S...
-	   readPtr = (readPtr + 1) % buffSize;  // produces a looping bufferpointer :)
-      }
+	  readPtr = (readPtr + 1) % buffSize;  // produces a looping bufferpointer :)
+    }
    }
    
    
    int checkval = 0; // it counts the mixerchannels which did not get an update
-   for(int i=0; i<= 15; i++)
+   for( int i=0; i<= 15; i++ )
    {
      if ( activeChannel[i] == 1 && updatedSample[ i ] ==0  ) 
      {
@@ -169,6 +173,9 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
    
    if ( checkval== 0 )
    {    
+      #ifdef AudioDebug 
+        Serial.println( "MOB Free Up" );
+      #endif
      // get next writepointer	  
      int nextWritePtr = (writePtr + 1) % buffSize;
 	  
@@ -179,9 +186,10 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
      }
      
 	 // calculate a new sample based on a mix of comulated values ...
-     leftSample[writePtr]  = leftComuSample; // sample[LEFTCHANNEL];
-     rightSample[writePtr] = rightComuSample; // sample[RIGHTCHANNEL];
+     leftSample[writePtr]  = LimitSample(leftComuSample); // sample[LEFTCHANNEL];
+     rightSample[writePtr] = LimitSample(rightComuSample); // sample[RIGHTCHANNEL];
      writePtr = nextWritePtr;
+     
 	 // Reset all Values in the buffers
 	 for( int i=0; i<= 15; i++ )
 	 {

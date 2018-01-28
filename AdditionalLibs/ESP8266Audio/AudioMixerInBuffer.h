@@ -64,6 +64,7 @@ class AudioMixerInBuffer : public AudioOutput
     int readPtr;
     bool filled;
     int channelNo;
+    uint16_t mychannels;
 };
 
 #endif

@@ -183,6 +183,7 @@ bool AudioGeneratorSAMPLE::loop()
             stop(); 
           } 
         } else {
+           // then we create a stereo sample
           lastSample[AudioOutput::RIGHTCHANNEL] = lastSample[AudioOutput::LEFTCHANNEL]; // 0; MONO
         }
         

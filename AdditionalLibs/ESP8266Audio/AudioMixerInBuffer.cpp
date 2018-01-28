@@ -38,9 +38,13 @@ AudioMixerInBuffer
 
 */
 
+
+
 #include <Arduino.h>
 #include "AudioMixerInBuffer.h"
 #include "AudioMixerOutBuffer.h"
+
+// #define AudioDebug;
 
 AudioMixerInBuffer::AudioMixerInBuffer(int buffSizeSamples, AudioMixerOutBuffer *dest, int mixChannelNo )
 {
@@ -49,6 +53,7 @@ AudioMixerInBuffer::AudioMixerInBuffer(int buffSizeSamples, AudioMixerOutBuffer 
   rightSample = (int16_t*)malloc(sizeof(int16_t) * buffSize);
   writePtr    = 0;
   readPtr     = 0;
+  mychannels  = 1; // Mono
   sink        = dest;
   channelNo   = mixChannelNo; // ChannelNo should be between 0 and 15 ... 16 channels for testing!
 }
@@ -70,13 +75,16 @@ bool AudioMixerInBuffer::SetBitsPerSample(int bits) {
 }
 
 bool AudioMixerInBuffer::SetChannels(int channels){
-  return sink->SetMixChannels(channels , channelNo); // Stereo
+  mychannels = channels;
+  return sink->SetMixChannels(channels , channelNo); // Stereo or Mono
 }
 
 bool AudioMixerInBuffer::begin(){
   filled = false;
   return sink->MixBegin( channelNo );
 }
+
+
 
 bool AudioMixerInBuffer::ConsumeSample(int16_t sample[2]){
   // `!!!!!! In this Class, we could only forward the Sample to the Sink of the type AudioMixerOutBuffer!!!!!
@@ -88,9 +96,9 @@ bool AudioMixerInBuffer::ConsumeSample(int16_t sample[2]){
     }
   }
   
-  // DEBUG
-  Serial.println( channelNo );
-  
+ #ifdef AudioDebug 
+   Serial.println( channelNo );
+ #endif 
   
   // Now, do we have space for a new sample?
   int nextWritePtr = (writePtr + 1) % buffSize;

@@ -62,6 +62,15 @@ class AudioMixerOutBuffer : public AudioOutput
     virtual bool MixStop( int mixChannelNo=0 );
     virtual bool MixConsumeSample(int16_t sample[2], int mixChannelNo=0 );
     
+  inline int16_t LimitSample( int16_t s) {
+    // this would be a good place to activate an PIN with an red LED as a Clipping-LED
+    int32_t v = s; // (s * veloci)>>7;
+    if (v < -32767) return -32767;
+    else if (v > 32767) return 32767;
+    else return (int16_t)(v&0xffff);
+  }
+    
+    
   protected:
     AudioOutput *sink;
     int buffSize;
