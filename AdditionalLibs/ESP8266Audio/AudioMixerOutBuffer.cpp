@@ -139,7 +139,7 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
      leftComuSample  += sample[LEFTCHANNEL]; // equivalent of value = value + Mat_data_vektor[i];
      rightComuSample += sample[RIGHTCHANNEL]; // equivalent of value = value + Mat_data_vektor[i];
      storeSampleFlag = true;  
-     vreturn = true;
+     vreturn         = true;
      updatedSample[ mixChannelNo] = 1;
   }
   
@@ -205,7 +205,7 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
       rightComuSample += sample[RIGHTCHANNEL]; 
       storeSampleFlag = true;  
       vreturn = true;
-      updatedSample[ mixChannelNo] == 1; 
+      updatedSample[ mixChannelNo] = 1; 
    }
    return vreturn;
 
@@ -214,7 +214,22 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
 // Stop one channel
 bool AudioMixerOutBuffer::MixStop( int mixChannelNo )
 {
-  activeChannel[ mixChannelNo ] = 0;
+  // attach a last sample with 0
+  int16_t lastsample[2] = {0, 0};
+  MixConsumeSample(lastsample, mixChannelNo);
+
+  // disable channel
   updatedSample[ mixChannelNo ] = 0;   
+  activeChannel[ mixChannelNo ] = 0;
+
+  // check if this was the last active channel for this mixer:
+  int checkval =0;
+  for( int i=0; i<= 15; i++ )
+  {
+    checkval += activeChannel[ i ] ;
+  }
+  if ( checkval==0 ){
+    sink->mute();
+  }
   return true;
 }

@@ -53,7 +53,7 @@ AudioMixerInBuffer::AudioMixerInBuffer(int buffSizeSamples, AudioMixerOutBuffer 
   rightSample = (int16_t*)malloc(sizeof(int16_t) * buffSize);
   writePtr    = 0;
   readPtr     = 0;
-  mychannels  = 1; // Mono
+  mychannels  = 2; // Mono
   sink        = dest;
   channelNo   = mixChannelNo; // ChannelNo should be between 0 and 15 ... 16 channels for testing!
 }
