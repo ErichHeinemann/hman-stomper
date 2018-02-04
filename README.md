@@ -76,6 +76,9 @@ Status 2018-02-04
 - Mixer-function to play some samples at the same time (tested with 4 samples, theoretical up to 16 channels)
 - effetcs (reverb / filter) do not work
 
+First Video of Mixer-Tests:
+https://youtu.be/iml-vkQtub4
+
 Any comments:
 stomp@hman-projects.de
 
