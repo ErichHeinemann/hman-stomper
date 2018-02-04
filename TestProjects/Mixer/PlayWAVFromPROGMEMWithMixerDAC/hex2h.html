@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>HEX to "h"-File</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<style>
+/*
+ * Bootstrap v2.2.1
+ *
+ * Copyright 2012 Twitter, Inc
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Designed and built with all the love in the world @twitter by @mdo and @fat.
+ */
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+a:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+a:hover,
+a:active {
+  outline: 0;
+}
+button,
+input,
+select,
+textarea {
+  margin: 0;
+  font-size: 100%;
+  vertical-align: middle;
+}
+button,
+input {
+  *overflow: visible;
+  line-height: normal;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+body {
+  margin: 10px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #333;
+  background-color: #fff;
+}
+textarea {
+margin: 10px;
+}
+a {
+  color: #08c;
+  text-decoration: none;
+}
+a:hover {
+  color: #005580;
+  text-decoration: underline;
+}
+.row {
+  margin-left: -20px;
+  *zoom: 1;
+}
+.row:before,
+.row:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.row:after {
+  clear: both;
+}
+[class*="span"] {
+  float: left;
+  min-height: 1px;
+  margin-left: 20px;
+}
+.container,
+.navbar-static-top .container,
+.navbar-fixed-top .container,
+.navbar-fixed-bottom .container {
+  width: 940px;
+}
+.span12 {
+  width: 940px;
+}
+.span11 {
+  width: 860px;
+}
+.span10 {
+  width: 780px;
+}
+.span9 {
+  width: 700px;
+}
+.span8 {
+  width: 620px;
+}
+.span7 {
+  width: 540px;
+}
+.span6 {
+  width: 460px;
+}
+.span5 {
+  width: 380px;
+}
+.span4 {
+  width: 300px;
+}
+.span3 {
+  width: 220px;
+}
+.span2 {
+  width: 140px;
+}
+.span1 {
+  width: 60px;
+}
+[class*="span"].pull-right,
+.row-fluid [class*="span"].pull-right {
+  float: right;
+}
+.container {
+  margin-right: auto;
+  margin-left: auto;
+  *zoom: 1;
+}
+.container:before,
+.container:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.container:after {
+  clear: both;
+}
+p {
+  margin: 0 0 10px;
+}
+.lead {
+  margin-bottom: 20px;
+  font-size: 21px;
+  font-weight: 200;
+  line-height: 30px;
+}
+small {
+  font-size: 85%;
+}
+h1 {
+  margin: 10px 0;
+  font-family: inherit;
+  font-weight: bold;
+  line-height: 20px;
+  color: inherit;
+  text-rendering: optimizelegibility;
+}
+h1 small {
+  font-weight: normal;
+  line-height: 1;
+  color: #999;
+}
+h1 {
+  line-height: 40px;
+}
+h1 {
+  font-size: 38.5px;
+}
+h1 small {
+  font-size: 24.5px;
+}
+body {
+  margin-top: 90px;
+}
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  margin-left: -480px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  padding-top: 10px;
+  z-index: 10;
+}
+.footer {
+  color: #ddd;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 20px;
+}
+.footer a {
+  color: #ccc;
+  text-decoration: underline;
+}
+.the-icons {
+  font-size: 14px;
+  line-height: 24px;
+}
+.switch {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  color: #666;
+}
+.switch input {
+  margin-right: 0.3em;
+}
+
+     
+     
+ 
+
+</style>
+</head>
+<body>
+<div class="container">
+ <h2> Convert Hex-File into "h"-File </h2>
+ 
+<div id="divMain"></div>
+ 
+<script type="text/javascript">
+ 
+// main
+ 
+function main(){
+    var session = new Session([]);
+ 
+    Globals.Instance.initialize(session);
+}
+ 
+// extensions
+ 
+function StringExtensions() {
+    // extension class
+} {
+    String.prototype.padLeft = function(lengthToPadTo, charToPadWith) {
+        var thisPadded = this;
+ 
+        while (thisPadded.length < lengthToPadTo) {
+            thisPadded = 
+                charToPadWith + thisPadded;
+        }
+ 
+        return thisPadded;
+    }
+}
+ 
+// classes
+ 
+function Converter(){
+    // static class
+}{
+    Converter.PrintableCharacters = 
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        + "abcdefghijklmnopqrstuvwxyz"
+        + "0123456789";
+        // todo - Symbols.
+ 
+    Converter.bytesToStringASCII = function(bytes) {
+        var returnValue = "";
+ 
+        for (var i = 0; i < bytes.length; i++) {
+            var byte = bytes[i];
+            var byteAsCharASCII = String.fromCharCode ( byte );
+ 
+            if (Converter.PrintableCharacters.indexOf(byteAsCharASCII) == -1) {
+                byteAsCharASCII = ".";  
+            }
+ 
+            returnValue += byteAsCharASCII;
+        }
+ 
+        return returnValue;
+    }
+ 
+    Converter.bytesToStringHexadecimal = function(bytes){
+        var returnValue = "";
+        var nl = String.fromCharCode(13);
+ 
+        var fileInput = document.getElementById('upload');  
+        
+        var inp = document.getElementsByTagName('input');
+        for(var i in inp){
+          if(inp[i].type == "file"){
+            myvarname = ( inp[i].files[0].name ).toLowerCase().replace('.wav','');
+          }
+        }
+         
+        // var fileInput =  inputFileToLoad;
+        // var filename = fileInput.files[0].name;
+        // alert(filename);
+ 
+        for (var i = 0; i < bytes.length; i++) {
+            var byte = bytes[i];
+            var byteAsStringHexadecimal = 
+                byte.toString(16).padLeft(2, '0');
+             if ( i>0 && i%16 == 0 ) {
+              returnValue += nl; 
+            }
+            returnValue += ',0x'+byteAsStringHexadecimal;
+
+            
+        }
+        return "const unsigned char "+ myvarname+"[] PROGMEM = {" + returnValue.substring(1) + "};";
+    }
+ 
+    Converter.stringHexadecimalToBytes = function(stringHexadecimal) {
+        var returnValues = [];
+ 
+        var nibblesForByteCurrent = [];
+ 
+        for (i = 0; i < stringHexadecimal.length; i++) {
+            var charForNibble = stringHexadecimal[i];
+            var nibbleAsInt = parseInt(charForNibble, 16);
+            if (isNaN(nibbleAsInt) == false) {
+                nibblesForByteCurrent.push(nibbleAsInt);
+                if (nibblesForByteCurrent.length == 2) {
+                    var byte = 
+                        (nibblesForByteCurrent[0] << 4) 
+                        + nibblesForByteCurrent[1];
+                    returnValues.push(byte);
+                    nibblesForByteCurrent.length = 0;
+                }
+            }           
+        }
+ 
+        return returnValues;
+    }   
+}
+ 
+function Globals(){
+    // do nothing
+}{
+    Globals.Instance = new Globals();
+     
+    Globals.prototype.initialize = function(session) {
+        this.session = session;
+        this.session.domElementUpdate();
+    }
+}
+ 
+function Session(bytes){
+    this.bytes = bytes;
+    this.finalNibble = "";
+} {
+    // dom
+ 
+    Session.prototype.domElementUpdate = function(){
+        if (this.domElement == null) {
+            var divSession = document.createElement("div");
+ 
+            var textareaHexadecimal = document.createElement("textarea");
+            textareaHexadecimal.cols = 40;
+            textareaHexadecimal.rows = 10;
+            textareaHexadecimal.onkeyup = this.textareaHexadecimal_KeyUp.bind(this);
+            textareaHexadecimal.oninput = this.textareaHexadecimal_Changed.bind(this);
+            this.textareaHexadecimal = textareaHexadecimal;
+            divSession.appendChild(textareaHexadecimal);
+ 
+            var textareaASCII = document.createElement("textarea");
+            textareaASCII.cols = 20;
+            textareaASCII.rows = 20;
+            textareaASCII.disabled = true;
+            this.textareaASCII = textareaASCII;
+            divSession.appendChild(textareaASCII);
+ 
+            var divFileOperations = document.createElement("div");
+         
+            var buttonSave = document.createElement("button");
+            buttonSave.innerHTML = "Save";
+            buttonSave.onclick = this.buttonSave_Clicked.bind(this);
+            divFileOperations.appendChild(buttonSave);
+ 
+            var inputFileToLoad = document.createElement("input");
+            inputFileToLoad.type = "file";
+            inputFileToLoad.onchange = this.inputFileToLoad_Changed.bind(this);
+            divFileOperations.appendChild(inputFileToLoad);
+ 
+            divSession.appendChild(divFileOperations);
+ 
+            var divCursor = document.createElement("div");
+             
+            var labelCursorPosition = document.createElement("label");
+            labelCursorPosition.innerHTML = "Cursor Position:";
+            divCursor.appendChild(labelCursorPosition);
+ 
+            var inputCursorPosition = document.createElement("input");
+            inputCursorPosition.disabled = true;
+            this.inputCursorPosition = inputCursorPosition;
+            divCursor.appendChild(inputCursorPosition);
+ 
+            divSession.appendChild(divCursor);
+ 
+            var divMain = document.getElementById("divMain");
+            divMain.appendChild(divSession);
+ 
+            this.domElement = divSession;
+        }
+ 
+        var bytesAsStringHexadecimal = Converter.bytesToStringHexadecimal (
+            this.bytes
+        );
+        this.textareaHexadecimal.value = 
+            bytesAsStringHexadecimal + this.finalNibble;
+ 
+        var bytesAsStringASCII = Converter.bytesToStringASCII(  this.bytes );
+        this.textareaASCII.value = bytesAsStringASCII;
+ 
+        var cursorPos = this.textareaHexadecimal.selectionStart;
+        var cursorPosAsString = 
+            "0d" + cursorPos 
+            + "; 0x" + cursorPos.toString(16)
+            + "; 0b" + cursorPos.toString(2);
+ 
+        this.inputCursorPosition.value = cursorPosAsString;
+ 
+        return this.domElement;
+    }
+ 
+    // events
+ 
+    Session.prototype.buttonSave_Clicked = function() {
+        var dataAsArrayBuffer = new ArrayBuffer(this.bytes.length);
+        var dataAsArrayUnsigned = new Uint8Array(dataAsArrayBuffer);
+        for (var i = 0; i < this.bytes.length; i++)  {
+            dataAsArrayUnsigned[i] = this.bytes[i];
+        }
+        var dataAsBlob = new Blob([dataAsArrayBuffer], {type:'bytes'});
+ 
+ 
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(dataAsBlob);
+        link.download = "Data.bin";
+        link.click();
+    }
+ 
+    Session.prototype.inputFileToLoad_Changed = function(event) {
+        var inputFileToLoad = event.target;
+        var fileToLoad = inputFileToLoad.files[0];
+        if (fileToLoad != null) {
+            var fileReader = new FileReader();
+            fileReader.onload = this.inputFileToLoad_Changed_Loaded.bind(this); 
+            fileReader.readAsBinaryString(fileToLoad);
+        }
+    }
+ 
+    Session.prototype.inputFileToLoad_Changed_Loaded = function(fileLoadedEvent) 
+    {
+        var dataAsBinaryString = fileLoadedEvent.target.result;
+ 
+        this.bytes = [];
+ 
+        for (var i = 0; i < dataAsBinaryString.length; i++) {
+            var byte = dataAsBinaryString.charCodeAt(i);
+            this.bytes.push(byte);
+        }
+ 
+        this.domElementUpdate();
+    }
+ 
+    Session.prototype.textareaHexadecimal_Changed = function(event) {
+        var bytesAsStringHexadecimal = event.target.value;
+        this.bytes = Converter.stringHexadecimalToBytes (
+            bytesAsStringHexadecimal
+        );
+ 
+        if (bytesAsStringHexadecimal.length % 2 == 0) {
+            this.finalNibble = "";
+        } else {
+            this.finalNibble = bytesAsStringHexadecimal.substr
+            (
+                bytesAsStringHexadecimal.length - 1,
+                1
+            );
+ 
+            var finalNibbleAsInt = parseInt(this.finalNibble, 16);
+            if (isNaN(finalNibbleAsInt) == true)
+            {
+                this.finalNibble = "";
+            }
+        }
+ 
+        this.domElementUpdate();
+    }
+ 
+    Session.prototype.textareaHexadecimal_KeyUp = function(event) {
+        if (event.key.indexOf("Arrow") == 0)  {
+            this.domElementUpdate();
+        }
+    }
+ 
+}
+ 
+// run
+ 
+main();
+ 
+</script>
+ 
+ <!--
+
+ <div class="form-group">
+  <label for="comment">Comment:</label>
+  <textarea class="form-control" rows="5" id="comment"></textarea>
+</div> 
+
+
+<button type="button" class="btn btn-success">Success</button>
+
+
+<script type="text/javascript">
+</script>
+-->
+
+</div>
+</body>
+</html>
