@@ -59,7 +59,6 @@ The MicroSD-Card-Reader is an active one which transforms the voltage locally fr
 - GPIO 05 = CS
 - GND = GND
 
-
 A passive adaptor does not work without additional resistors. If You would like to only use a simple Micro-SD to SD-Card-Adaptor, then pullup all pins (MOSI, MISO, CLK) to 3.3 via 10KOhm resistors.
 I will test this setup later to make the entrypoint for this project as chaep as possible. 
 
@@ -68,7 +67,14 @@ Additional Pins are used for a "Next-Sound-Select-Button", an optional OLED-disp
 The minimum hardware-setup then: 1 ESP32-Devboard, 1 Piezo, 1 transistor, 2 resistors, 1 diode, 1 button, 1 capacitor,one socket for 6.3mm jacks
 The maximum hardware-setup then: 1 ESP32-Devboard, 1 Piezo, DAC pcm5102, 1x SDCard-Adaptor,1x SD-Card, 2 Rotary encoders, OLED-Display, 1 button, 2 sockets 6.3mm
 
-Ii used a USB-Powerbank as the Powersupply which works well.
+I used a USB-Powerbank as the Powersupply which works well.
+
+Status 2018-02-04
+- Sampleplay works
+- Sample could be tuned/pitched by 12 semitones up and down (basenote is 60 = c4)
+- Velocity to playing each sample
+- Mixer-function to play some samples at the same time (tested with 4 samples, theoretical up to 16 channels)
+- effetcs (reverb / filter) do not work
 
 Any comments:
 stomp@hman-projects.de
