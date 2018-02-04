@@ -19,13 +19,14 @@
 */
 
 #include <Arduino.h>
-#ifdef ARDUINO_ESP32_DEV
+// #ifdef ARDUINO_ESP32_DEV
 #include "driver/i2s.h"
-int i2s_num = I2S_NUM_0; // i2s port number
+  int i2s_num = I2S_NUM_0; // i2s port number
   const int I2S_PORT_NUM = 0;
-#else
-#include <i2s.h>
-#endif
+// #else
+// #include <i2s.h>
+// #endif
+
 #include "AudioOutputI2Sesp32.h"
 
 
@@ -41,12 +42,12 @@ AudioOutputI2Sesp32::AudioOutputI2Sesp32()
   static const i2s_config_t i2s_config = {
    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
    .sample_rate = 44100,
-   .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-   .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+   .bits_per_sample      = I2S_BITS_PER_SAMPLE_16BIT,
+   .channel_format       = I2S_CHANNEL_FMT_RIGHT_LEFT,
    .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-   .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // high interrupt priority
+   .intr_alloc_flags     = ESP_INTR_FLAG_LEVEL1, // high interrupt priority
    .dma_buf_count = 6,
-   .dma_buf_len = 60
+   .dma_buf_len   = 60
   };
 
  i2s_pin_config_t pin_config = {
@@ -62,7 +63,7 @@ AudioOutputI2Sesp32::AudioOutputI2Sesp32()
   // Or only this??
   i2s_start( ( i2s_port_t )I2S_PORT_NUM );
   // Zero the Buffer to avoid sounds...
-  i2s_zero_dma_buffer((i2s_port_t)I2S_PORT_NUM);
+  i2s_zero_dma_buffer(( i2s_port_t )I2S_PORT_NUM);
   
   // ESP32 
   }
@@ -77,23 +78,24 @@ AudioOutputI2Sesp32::~AudioOutputI2Sesp32()
 {
   if (i2sOn){
      //ESP32
-     #ifdef ARDUINO_ESP32_DEV
+     // #ifdef ARDUINO_ESP32_DEV
        i2s_zero_dma_buffer((i2s_port_t)I2S_PORT_NUM);
        i2s_stop((i2s_port_t) I2S_PORT_NUM);
-     #else  
+     // #else  
      // ESP8266
-       i2s_end();
-     #endif  
+     //   i2s_end();
+     // #endif  
    }
   // i2sOn = false;
   
   // copied from the newer version of the AufioOutputI2S-Class (2018-01-30)  
-  #ifdef ARDUINO_ESP32_DEV
-  if (i2sOn) {
-    Serial.printf("UNINSTALL I2S\n");
-    i2s_driver_uninstall((i2s_port_t)I2S_PORT_NUM); //stop & destroy i2s driver
-  }	
-  #endif
+  // #ifdef ARDUINO_ESP32_DEV
+  // if (i2sOn) {
+  //   Serial.printf("UNINSTALL I2S\n");
+  //   i2s_driver_uninstall((i2s_port_t)I2S_PORT_NUM); //stop & destroy i2s driver
+  // }	
+  // #endif
+  
   i2sOn = false;
   
 }
@@ -103,12 +105,12 @@ bool AudioOutputI2Sesp32::SetRate(int hz)
   // TODO - have a list of allowable rates from constructor, check them
   this->hertz = hz;
     // ESP32
-  #ifdef ARDUINO_ESP32_DEV
+  // #ifdef ARDUINO_ESP32_DEV
     i2s_set_sample_rates( (i2s_port_t) I2S_PORT_NUM, (uint32_t) hz);
-  #else  
+  // #else  
   // ESP8266 
-    i2s_set_rate(hz);
-  #endif  
+  //   i2s_set_rate(hz);
+  // #endif  
   return true;
 }
 
@@ -151,12 +153,12 @@ bool AudioOutputI2Sesp32::ConsumeSample(int16_t sample[2])
   
   ;
   // ESP32
-  #ifdef ARDUINO_ESP32_DEV
+  // #ifdef ARDUINO_ESP32_DEV
     return i2s_push_sample((i2s_port_t) I2S_PORT_NUM, (const char *)&s32, 500); // Wait 500 ms
-  #else
+  // #else
   // ESP8266 
-    return i2s_write_sample_nb(s32); // If we can't store it, return false.  OTW true
-  #endif
+  //   return i2s_write_sample_nb(s32); // If we can't store it, return false.  OTW true
+  // #endif
 }
 
 bool AudioOutputI2Sesp32::stop()
@@ -168,9 +170,9 @@ bool AudioOutputI2Sesp32::stop()
   if (i2sOn){
      //ESP32
      
-      #ifdef ARDUINO_ESP32_DEV
+      // #ifdef ARDUINO_ESP32_DEV
        i2s_zero_dma_buffer((i2s_port_t)I2S_PORT_NUM);
-      #endif
+      // #endif
      // ESP8266
      // i2s_end();
    }
