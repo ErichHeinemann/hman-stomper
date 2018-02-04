@@ -87,7 +87,7 @@ bool AudioMixerInBuffer::begin(){
 
 
 bool AudioMixerInBuffer::ConsumeSample(int16_t sample[2]){
-  // `!!!!!! In this Class, we could only forward the Sample to the Sink of the type AudioMixerOutBuffer!!!!!
+  // !!!!!! In this Class, we could only forward the Sample to the Sink of the type AudioMixerOutBuffer!!!!!
   if (filled) {
     while (readPtr != writePtr) {
       int16_t s[2] = {leftSample[readPtr], rightSample[readPtr]};
@@ -96,9 +96,9 @@ bool AudioMixerInBuffer::ConsumeSample(int16_t sample[2]){
     }
   }
   
- #ifdef AudioDebug 
-   Serial.println( channelNo );
- #endif 
+  #ifdef AudioDebug 
+    Serial.println( channelNo );
+  #endif 
   
   // Now, do we have space for a new sample?
   int nextWritePtr = (writePtr + 1) % buffSize;

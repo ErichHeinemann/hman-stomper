@@ -152,7 +152,7 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
    #endif
   
     while ( readPtr != writePtr ) {
-      int16_t s[2] = {leftSample[readPtr], rightSample[readPtr]};
+      int16_t s[2] = { leftSample[readPtr], rightSample[readPtr] };
       #ifdef AudioDebug 
         Serial.println( "MOB Sink ConsumeSample" );
       #endif
@@ -165,7 +165,7 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
    int checkval = 0; // it counts the mixerchannels which did not get an update
    for( int i=0; i<= 15; i++ )
    {
-     if ( activeChannel[i] == 1 && updatedSample[ i ] ==0  ) 
+     if ( activeChannel[i] == 1 && updatedSample[ i ] == 0  ) 
      {
        checkval +=1;
 	 } 
@@ -180,14 +180,14 @@ bool AudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChannelNo )
      int nextWritePtr = (writePtr + 1) % buffSize;
 	  
      // if all is filled up, then we cannot store the sample
-     if (nextWritePtr == readPtr ) {
+     if ( nextWritePtr == readPtr ) {
        filled = true;
    	   // return vreturn; // this is the wrong answer ... but anyhow
      }
      
 	 // calculate a new sample based on a mix of comulated values ...
-     leftSample[writePtr]  = LimitSample(leftComuSample); // sample[LEFTCHANNEL];
-     rightSample[writePtr] = LimitSample(rightComuSample); // sample[RIGHTCHANNEL];
+     leftSample[writePtr]  = LimitSample( leftComuSample ); // sample[LEFTCHANNEL];
+     rightSample[writePtr] = LimitSample( rightComuSample ); // sample[RIGHTCHANNEL];
      writePtr = nextWritePtr;
      
 	 // Reset all Values in the buffers
@@ -217,6 +217,7 @@ bool AudioMixerOutBuffer::MixStop( int mixChannelNo )
   // attach a last sample with 0
   int16_t lastsample[2] = {0, 0};
   MixConsumeSample(lastsample, mixChannelNo);
+  // if ( !sink->ConsumeSample( lastsample )) break;
 
   // disable channel
   updatedSample[ mixChannelNo ] = 0;   
@@ -229,7 +230,12 @@ bool AudioMixerOutBuffer::MixStop( int mixChannelNo )
     checkval += activeChannel[ i ] ;
   }
   if ( checkval==0 ){
-    sink->mute();
+    sink->ConsumeSample( lastsample );
+    sink->stop(); // I would suggest a "mute-function here. .. E.Heinemann
+    //#ifdef AudioDebug 
+        Serial.println( "sink->stop send" );
+    //   #endif  
+    
   }
   return true;
 }

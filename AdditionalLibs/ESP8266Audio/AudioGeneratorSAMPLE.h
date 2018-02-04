@@ -55,8 +55,8 @@ class AudioGeneratorSAMPLE : AudioGenerator
     uint8_t myFreq; //Frequency, unclassified Value from 0 .. 127
     uint8_t myReso; //Resonance, unclassified value from 0 .. 127  
     
-    // AudioFilter *filter;
-    // AudioReverb *reverb;
+    AudioFilter *filter;
+    AudioReverb *reverb;
     
 
   inline int16_t AmplifyByVelocity( int16_t s) {

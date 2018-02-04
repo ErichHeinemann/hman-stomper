@@ -158,12 +158,12 @@ bool AudioGeneratorSAMPLE::loop()
              // Serial.println(  " fill" );
              // Serial.print ("m:");
              // Serial.println( midifrequencies[pit-36] );
-             lastSampleBuffer[AudioOutput::LEFTCHANNEL] = lastSample[AudioOutput::LEFTCHANNEL];
+             lastSampleBuffer[ AudioOutput::LEFTCHANNEL ] = lastSample[AudioOutput::LEFTCHANNEL ];
              fillSamples += 1;
-             if (!GetBufferedData(2, &lastSample[AudioOutput::LEFTCHANNEL])) {
+             if (!GetBufferedData(2, &lastSample[ AudioOutput::LEFTCHANNEL])) {
                stop(); 
              }
-             lastSample[AudioOutput::LEFTCHANNEL] = ( lastSampleBuffer[AudioOutput::LEFTCHANNEL] + lastSample[AudioOutput::LEFTCHANNEL] ) / 2 ;
+             lastSample[ AudioOutput::LEFTCHANNEL ] = ( lastSampleBuffer[ AudioOutput::LEFTCHANNEL ] + lastSample[ AudioOutput::LEFTCHANNEL ] ) / 2 ;
           }          
         } // end pitch up
         
@@ -179,23 +179,23 @@ bool AudioGeneratorSAMPLE::loop()
         
         
         if (channels == 2) {
-          if (!GetBufferedData(2, &lastSample[AudioOutput::RIGHTCHANNEL])) {
+          if (!GetBufferedData(2, &lastSample[ AudioOutput::RIGHTCHANNEL ])) {
             stop(); 
           } 
         } else {
            // then we create a stereo sample
-          lastSample[AudioOutput::RIGHTCHANNEL] = lastSample[AudioOutput::LEFTCHANNEL]; // 0; MONO
+          lastSample[ AudioOutput::RIGHTCHANNEL ] = lastSample[ AudioOutput::LEFTCHANNEL ]; // 0; MONO
         }
         
         // PROCESS PITCH UP
         if (pit > 60) {
             // Pitch Right
             if ( v >= 1  ) {
-              lastSampleBuffer[AudioOutput::RIGHTCHANNEL] = lastSample[AudioOutput::RIGHTCHANNEL];
-              if (!GetBufferedData(2, &lastSample[AudioOutput::RIGHTCHANNEL])) {
+              lastSampleBuffer[ AudioOutput::RIGHTCHANNEL ] = lastSample[ AudioOutput::RIGHTCHANNEL ];
+              if (!GetBufferedData(2, &lastSample[ AudioOutput::RIGHTCHANNEL ])) {
                 stop(); 
               }
-              lastSample[AudioOutput::RIGHTCHANNEL] = ( lastSampleBuffer[AudioOutput::RIGHTCHANNEL] + lastSample[AudioOutput::RIGHTCHANNEL] ) / 2;
+              lastSample[ AudioOutput::RIGHTCHANNEL ] = ( lastSampleBuffer[ AudioOutput::RIGHTCHANNEL ] + lastSample[ AudioOutput::RIGHTCHANNEL ] ) / 2;
             }  
         } // end pitch 
         
@@ -204,7 +204,7 @@ bool AudioGeneratorSAMPLE::loop()
 
 
   // Filterbank
-  /*
+  
   if ( activeLPFilter == true && 1==2 ) {
     // int16_t l1 = lastSample[AudioOutput::LEFTCHANNEL];
     // int16_t r1 = lastSample[AudioOutput::RIGHTCHANNEL];
@@ -224,7 +224,7 @@ bool AudioGeneratorSAMPLE::loop()
     lastSample[AudioOutput::LEFTCHANNEL]  =  reverb->doReverb( lastSample[AudioOutput::LEFTCHANNEL], AudioOutput::LEFTCHANNEL);
     lastSample[AudioOutput::RIGHTCHANNEL] =  reverb->doReverb( lastSample[AudioOutput::RIGHTCHANNEL], AudioOutput::RIGHTCHANNEL);
   }
-  */ 
+  
   // Velocity - Control  
   lastSample[AudioOutput::LEFTCHANNEL]  =  AmplifyByVelocity( lastSample[AudioOutput::LEFTCHANNEL] );
   lastSample[AudioOutput::RIGHTCHANNEL] =  AmplifyByVelocity( lastSample[AudioOutput::RIGHTCHANNEL] );  
