@@ -71,8 +71,8 @@ I used a USB-Powerbank as the Powersupply which works well.
 
 Status 2018-02-04
 - Sampleplay works
-- Sample could be tuned/pitched by 12 semitones up and down (basenote is 60 = c4)
-- Velocity to playing each sample
+- Sample could be tuned/pitched by 12 semitones up and down (basenote is 60 = c4, range 48 to 72)
+- Velocity to play each sample with different volume ( velocity 0-127)
 - Mixer-function to play some samples at the same time (tested with 4 samples, theoretical up to 16 channels)
 - effetcs (reverb / filter) do not work
 
