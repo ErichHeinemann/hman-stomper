@@ -56,10 +56,22 @@ The MicroSD-Card-Reader is an active one which transforms the voltage locally fr
 - GPIO 23 = MOSI
 - GPIO 19 = MISO
 - GPIO 18 = CLK / SCLK
-- GPIO 05 = CS
+- GPIO 05 = CS has to be changed to GIO 27 because some boards have fixed connected OLED-Displays on GPIO 05!
 - GND = GND
 
-A passive adaptor does not work without additional resistors. If You would like to only use a simple Micro-SD to SD-Card-Adaptor, then pullup all pins (MOSI, MISO, CLK) to 3.3 via 10KOhm resistors.
+Rotary Encoder 1
+GPIO 9 Pushbutton 
+GPIO 12 Rotary Pin1 
+GPIO 13 Rotary Pin3 
+GND Rotary Pin2 and Pushbutton
+
+Rotary Encoder 2
+GPIO 10 Pushbutton 
+GPIO 21 Rotary Pin1 
+GPIO 22 Rotary Pin3 
+GND Rotary Pin2 and Pushbutton
+
+A passive SDCard-adaptor does not work without additional resistors. If You would like to only use a simple Micro-SD to SD-Card-Adaptor, then pullup all pins (MOSI, MISO, CLK) to 3.3 via 10KOhm resistors.
 I will test this setup later to make the entrypoint for this project as chaep as possible. 
 
 Additional Pins are used for a "Next-Sound-Select-Button", an optional OLED-display attached via I2C and 2 rotary encoders but this Pinout is not yet fixed.
@@ -69,7 +81,7 @@ The maximum hardware-setup then: 1 ESP32-Devboard, 1 Piezo, DAC pcm5102, 1x SDCa
 
 I used a USB-Powerbank as the Powersupply which works well.
 
-Status 2018-02-04
+Status 2018-02-17
 - Sampleplay works
 - Sample could be tuned/pitched by 12 semitones up and down (basenote is 60 = c4, range 48 to 72)
 - Velocity to play each sample with different volume ( velocity 0-127)
