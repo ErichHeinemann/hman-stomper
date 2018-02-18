@@ -1,9 +1,15 @@
 /**
+
  */
 
 // Include the correct display library
-#include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
-#include "SSD1306.h" // alias for `#include "SSD1306Wire.h"`
+#include <Wire.h>        // Only needed for Arduino 1.6.5 and earlier
+#include "SSD1306.h"     // alias for `#include "SSD1306Wire.h"`
+// #include "HmanRotary.h"  // Custom lIbrary for Rotary-Encoder
+
+// Probably this for fixedStrings
+// https://github.com/toomasz/ArduinoFixedString
+ 
 
 // Initialize the OLED display using Wire library
 SSD1306  display(0x3c, 5, 4);
@@ -28,13 +34,13 @@ void setup() {
 
 }
 
-void oledValueSelection() {
-  // ( String menuname, String paramname, int paramvalue ) 
-  String menuname  ="osc 1";
-  String paramname  ="Freq:";
-  int    paramvalue = 105;
-  String confirmtext = "save|r"; // save or reset selected by rotary
-  uint8_t  mark = 4;
+void oledValueSelection ( String menuname, int mark, String paramname, int paramvalue , int parammax=127, String confirmtext="save") {
+  display.clear();
+  //   String menuname  ="osc 1";
+  //   String paramname  ="Freq:";
+  //  int    paramvalue = 105;
+  // String confirmtext = "save|r"; // save or reset selected by rotary
+  // uint8_t mark = 4;
 
   // Menuname
   display.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -50,8 +56,7 @@ void oledValueSelection() {
   display.setFont(ArialMT_Plain_16);
   display.drawString(128, 0, confirmtext);
   if (mark == 4) {
-    // Draw a line horizontally
-    display.drawHorizontalLine(127- display.getStringWidth( confirmtext), 17, display.getStringWidth( confirmtext) );
+    display.drawHorizontalLine( 128 - display.getStringWidth( confirmtext), 17, display.getStringWidth( confirmtext) );
   }
   
   // display Name of Parameter:
@@ -67,39 +72,41 @@ void oledValueSelection() {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_24);
   display.drawString(0, 38, (String) paramvalue);
-  int p = 127/paramvalue *100;
-  display.drawProgressBar(48, 44, 78, 13, p);
+  
+  if ( paramvalue>0 ) {
+    int p =  paramvalue * 100 / parammax;
+    display.drawProgressBar(48, 44, 78, 13, p);
+  }  
+  
   if (mark == 3) {
     // Draw a line horizontally
     display.drawHorizontalLine(0, 63,  display.getStringWidth((String) paramvalue));
   }
+  
+  display.display();
+
 }
 
 
-// Concept to select something out of a List of Values (LOV)
-void oledValueSelectionLOV() {
-  // ( String menuname, String paramname, int paramvalue , array of const char as LOV, String selectedVal) 
-  String menuname  ="sound";
-  String paramname ="Type";
-  String lov[7]; // we need only 6 for the UI at the same time ..  perhaps we use more but at another place!
-  uint8_t  mark = 2;
-  String confirmtext = "save|r"; // save or reset selected by rotary
- 
-  lov[ 0 ] = "oneshot simple";
-  lov[ 1 ] = "oneshot layered";
-  lov[ 2 ] = "oneshot splitted";
-  lov[ 3 ] = "loop";
-  lov[ 4 ] = "synth";
-  lov[ 5 ] = "harmonics";
-  lov[ 6 ] = "randomgroup";
 
+
+
+// Concept to select something out of a List of Values (LOV)
+void oledValueSelectionLOV( String menuname, int mark,  String paramname, int pParamvalue , String lov[], int sizeOfLov, String confirmtext="save") {
+  int paramvalue = 0;
+  if ( sizeOfLov > 0) {
+    paramvalue = pParamvalue%sizeOfLov;
+  } 
+  display.clear();
+  // String confirmtext = "save|r"; // save or reset selected by rotary
 
   // detect position of selected val in the array and use 3 before and 3 after it ... 
- 
   // Menuname
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 0, menuname + "" + paramname);
+  display.drawString(0, 0, menuname );
+
+  display.drawString(3+display.getStringWidth( menuname ), 0,  paramname);
 
   if (mark == 1) {
     // Draw a line horizontally
@@ -107,31 +114,61 @@ void oledValueSelectionLOV() {
   }
   if (mark == 2) {
     // Draw a line horizontally
-    display.drawHorizontalLine(display.getStringWidth( menuname ) , 17,  display.getStringWidth( paramname ) );
+    display.drawHorizontalLine(display.getStringWidth( menuname ) , 20,  display.getStringWidth( paramname ) );
   }
-  
 
   // Confirmation
   display.setTextAlignment(TEXT_ALIGN_RIGHT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(128, 0, confirmtext );
+  if (mark == 4) {
+    // Draw a line horizontally
+    display.drawHorizontalLine(90 , 17,  38 );
+  }
   
+  String label1=" ";
+  String label2=" ";
+  String label3=" ";
+  // int markerfound = 0;
+  // int var = 0;
+  // int var2 = NUMITEMS(lov);
+ 
+  // while(var < 100 && markerfound==0){
+
+  if ( paramvalue>0 & sizeOfLov>1 ){
+      label1=lov[paramvalue-1];
+  }
+
+  if (sizeOfLov>0){  
+    label2=lov[paramvalue];
+  }
+   
+  if ( sizeOfLov > paramvalue+1 ){
+      label3=lov[paramvalue+1];
+  }
+       
   // display Name of Parameter:
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_10);
-  display.drawString(2, 21, lov[1]);
+  display.drawString(1, 24, label1 );
 
   // selected Value .. else the value is printed in Arial 10
   display.setFont(ArialMT_Plain_16);
-  display.drawString(4, 32, lov[2]);
-  
-  display.setFont(ArialMT_Plain_10);
-  display.drawString(2, 49, lov[3]);
+  display.drawString(5, 36, label2 );
+  if ( mark == 3 ) {
+    // Draw a line horizontally
+    display.drawHorizontalLine( 5, 52,  display.getStringWidth( label2 ) );
+  }
+  if (label3 != " ") {   
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(1, 54, label3 );
+  }
+  // not enough place to show 4 or more values
   // display.drawString(5, 51, lov[4]);    
-
   // draw bar on the right side
   drawLOVScroll( 70, 70 );
-  
+  display.display();
+
 }
 
 
@@ -145,109 +182,66 @@ void drawLOVScroll( int pLOV, int sLOV ){
   display.drawHorizontalLine(123, 21, 5);
   display.drawHorizontalLine(123, 63, 5);  
   display.fillRect(123, rPos, 5, 5 );
-  }
-
-  
-void drawFontFaceDemo() {
-    // Font Demo1
-    // create more fonts at http://oleddisplay.squix.ch/
-    display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.setFont(ArialMT_Plain_10);
-    display.drawString(0, 0, "Hello world");
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(0, 10, "Hello world");
-    display.setFont(ArialMT_Plain_24);
-    display.drawString(0, 26, "Hello world");
 }
 
-void drawTextFlowDemo() {
-    display.setFont(ArialMT_Plain_10);
-    display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.drawStringMaxWidth(0, 0, 128,
-      "Lorem ipsum\n dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore." );
-}
-
-void drawTextAlignmentDemo() {
-    // Text alignment demo
-  display.setFont(ArialMT_Plain_10);
-
-  // The coordinates define the left starting point of the text
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 10, "Left aligned (0,10)");
-
-  // The coordinates define the center of the text
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.drawString(64, 22, "Center aligned (64,22)");
-
-  // The coordinates define the right end of the text
-  display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(128, 33, "Right aligned (128,33)");
-}
-
-void drawRectDemo() {
-      // Draw a pixel at given position
-    for (int i = 0; i < 10; i++) {
-      display.setPixel(i, i);
-      display.setPixel(10 - i, i);
-    }
-    display.drawRect(12, 12, 20, 20);
-
-    // Fill the rectangle
-    display.fillRect(14, 14, 17, 17);
-
-    // Draw a line horizontally
-    display.drawHorizontalLine(0, 40, 20);
-
-    // Draw a line horizontally
-    display.drawVerticalLine(40, 0, 20);
-}
-
-void drawCircleDemo() {
-  for (int i=1; i < 8; i++) {
-    display.setColor(WHITE);
-    display.drawCircle(32, 32, i*3);
-    if (i % 2 == 0) {
-      display.setColor(BLACK);
-    }
-    display.fillCircle(96, 32, 32 - i* 3);
-  }
-}
-
-void drawProgressBarDemo() {
-  int progress = (counter / 5) % 100;
-  // draw the progress bar
-  display.drawProgressBar(0, 32, 120, 10, progress);
-
-  // draw the percentage as String
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.drawString(64, 15, String(progress) + "%");
-}
-
-void drawImageDemo() {
-    // see http://blog.squix.org/2015/05/esp8266-nodemcu-how-to-create-xbm.html
-    // on how to create xbm files
-    display.drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-}
-
-Demo demos[] = {oledValueSelection,  oledValueSelectionLOV };
-int demoLength = (sizeof(demos) / sizeof(Demo));
-long timeSinceLastModeSwitch = 0;
 
 void loop() {
-  // clear the display
-  display.clear();
-  // draw the current demo method
-  demos[demoMode]();
 
-  display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(10, 128, String(millis()));
-  // write the buffer to the display
-  display.display();
+  // Jump to the Page to change an Integer-based Value
+  // Parameters: Menuname, selected Item, Parametername, value, maximum
+  oledValueSelection("menu", 3 , "Param", 10, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 20, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 30, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 40, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 50, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 60, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 70, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 80, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 90, 200);
+  delay(200);
+  oledValueSelection("menu", 3 , "Param", 100, 200);
+  delay(1000);
 
-  if (millis() - timeSinceLastModeSwitch > DEMO_DURATION) {
-    demoMode = (demoMode + 1)  % demoLength;
-    timeSinceLastModeSwitch = millis();
-  }
-  counter++;
-  delay(50);
+  String lov[7]; // we need only 6 for the UI at the same time ..  perhaps we use more but at another place!
+ 
+  lov[ 0 ] = "oneshot simple";
+  lov[ 1 ] = "oneshot layered";
+  lov[ 2 ] = "oneshot splitted";
+  lov[ 3 ] = "loop";
+  lov[ 4 ] = "synth";
+  lov[ 5 ] = "harmonics";
+  lov[ 6 ] = "randomgroup";
+
+  // Jump to the UI to select something out of a List of Values (LOV)
+  // Parameters: Menuname, selected Item, Parametername, selected Index from LOV, LOV itself as an Array of Strings, Size of Array
+  oledValueSelectionLOV( "sound", 1, "type", 0 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 2, "type", 0 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 0 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 1 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 2 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 3 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 4 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 5 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 3, "type", 6 , lov, 7 );
+  delay(1000);
+  oledValueSelectionLOV( "sound", 4, "type", 6 , lov, 7 );
+  delay(3000);    
+
+ 
 }
