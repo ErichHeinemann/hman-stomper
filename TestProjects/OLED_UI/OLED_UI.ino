@@ -14,7 +14,6 @@
 // Initialize the OLED display using Wire library
 SSD1306  display(0x3c, 5, 4);
 
-#define DEMO_DURATION 3000
 typedef void (*Demo)(void);
 
 int demoMode = 0;
@@ -129,11 +128,7 @@ void oledValueSelectionLOV( String menuname, int mark,  String paramname, int pP
   String label1=" ";
   String label2=" ";
   String label3=" ";
-  // int markerfound = 0;
-  // int var = 0;
-  // int var2 = NUMITEMS(lov);
  
-  // while(var < 100 && markerfound==0){
 
   if ( paramvalue>0 & sizeOfLov>1 ){
       label1=lov[paramvalue-1];
@@ -166,7 +161,7 @@ void oledValueSelectionLOV( String menuname, int mark,  String paramname, int pP
   // not enough place to show 4 or more values
   // display.drawString(5, 51, lov[4]);    
   // draw bar on the right side
-  drawLOVScroll( 70, 70 );
+  drawLOVScroll( paramvalue, sizeOfLov );
   display.display();
 
 }
@@ -175,20 +170,19 @@ void oledValueSelectionLOV( String menuname, int mark,  String paramname, int pP
 void drawLOVScroll( int pLOV, int sLOV ){
   // pLOV == Position
   // sLOV = Size of LOV
-  int rPos = 20+(44/sLOV* (pLOV) );
-  
-  display.drawVerticalLine(123, 21, 44);
+  int rPos = 20+(pLOV * 45/(sLOV) );
+  display.drawVerticalLine(122, 21, 44);
   display.drawVerticalLine(127, 21, 44);
-  display.drawHorizontalLine(123, 21, 5);
-  display.drawHorizontalLine(123, 63, 5);  
-  display.fillRect(123, rPos, 5, 5 );
+  display.drawHorizontalLine(122, 21, 6);
+  display.drawHorizontalLine(122, 63, 6);  
+  display.fillRect(122, rPos, 6, 5 );
 }
+
 
 
 void loop() {
 
-  // Jump to the Page to change an Integer-based Value
-  // Parameters: Menuname, selected Item, Parametername, value, maximum
+
   oledValueSelection("menu", 3 , "Param", 10, 200);
   delay(200);
   oledValueSelection("menu", 3 , "Param", 20, 200);
@@ -220,10 +214,9 @@ void loop() {
   lov[ 5 ] = "harmonics";
   lov[ 6 ] = "randomgroup";
 
-  // Jump to the UI to select something out of a List of Values (LOV)
-  // Parameters: Menuname, selected Item, Parametername, selected Index from LOV, LOV itself as an Array of Strings, Size of Array
   oledValueSelectionLOV( "sound", 1, "type", 0 , lov, 7 );
   delay(1000);
+
   oledValueSelectionLOV( "sound", 2, "type", 0 , lov, 7 );
   delay(1000);
   oledValueSelectionLOV( "sound", 3, "type", 0 , lov, 7 );
@@ -242,6 +235,7 @@ void loop() {
   delay(1000);
   oledValueSelectionLOV( "sound", 4, "type", 6 , lov, 7 );
   delay(3000);    
+
 
  
 }
