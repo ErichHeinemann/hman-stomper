@@ -18,145 +18,303 @@
  */
 
 
+/*
+ * Connection to the DAC
+ ESP32   - DAC98357A 
+ GPIO 26 - BCLK-Pin  
+ GPIO 25 - LRCK-Pin 
+ GPIO 33 - DIN-Pin 
+ 5v      . Vin
+ */
+
+
 #include <Arduino.h>
 
-#ifdef ESP32
-    #include <WiFi.h>
-#else
-    #include <ESP8266WiFi.h>
-#endif
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
 
-#include "AudioFileSourcePROGMEM.h"
-#include "AudioGeneratorWAV.h"
-#include "AudioGeneratorSAMPLE.h"
-#include "AudioOutputI2Sesp32.h"
-// #include "AudioOutputI2S.h"
-#include "AudioMixerOutBuffer.h"
-#include "AudioMixerInBuffer.h"
+#include "SampleAudioFileSourcePROGMEM.h"
+// #include "SampleAudioGeneratorWAV.h"
+#include "SampleAudioFileSourceSD.h" // This is the Lib to get files from SD
+#include "SampleAudioGeneratorSAMPLE.h"
+#include "SampleAudioOutputI2Sesp32.h"
+#include "SampleAudioMixerOutBuffer.h"
+#include "SampleAudioMixerInBuffer.h"
 
 
 // Sample, 16 Bit, Mono, Midi c4 - Note 60
 #include "angels.h"
 #include "arabicbass.h"
+#include "silence.h"
 
-// AudioGeneratorWAV *wav1;
-// AudioGeneratorWAV *wav2;
+// More Libs to integrade SSD1306-OLEDs
+#include <Wire.h>  
+#include "SSD1306.h"
 
-AudioGeneratorSAMPLE *wav1;
-AudioGeneratorSAMPLE *wav2;
-AudioGeneratorSAMPLE *wav3;
-AudioGeneratorSAMPLE *wav4;
+// for further development... Voicehandler should manage the Sounds and the voices 
+// for example to create a Drumkit with 10 different drum-sounds, we need only 4 or 5 voices at the same time
+// #include "VoiceHandler.h";
 
-AudioFileSourcePROGMEM *file1;
-AudioFileSourcePROGMEM *file2;
-AudioFileSourcePROGMEM *file3;
-AudioFileSourcePROGMEM *file4;
+SampleAudioGeneratorSAMPLE *wav1;
+SampleAudioGeneratorSAMPLE *wav2;
+SampleAudioGeneratorSAMPLE *wav3;
+SampleAudioGeneratorSAMPLE *wav4;
 
-AudioOutputI2Sesp32 *out;
-// AudioOutputI2S *out2;
+SampleAudioFileSourcePROGMEM *file1;
+SampleAudioFileSourcePROGMEM *file2;
+SampleAudioFileSourcePROGMEM *file3;
+SampleAudioFileSourcePROGMEM *file4;
 
-AudioMixerInBuffer *channel1;
-AudioMixerInBuffer *channel2;
-AudioMixerInBuffer *channel3;
-AudioMixerInBuffer *channel4;
+SampleAudioOutputI2Sesp32 *out;
 
-AudioMixerOutBuffer *mainOut;
+SampleAudioMixerInBuffer *channel1;
+SampleAudioMixerInBuffer *channel2;
+SampleAudioMixerInBuffer *channel3;
+SampleAudioMixerInBuffer *channel4;
+
+SampleAudioMixerOutBuffer *mixer;
+
+// The VoiceHandler is something for the future to implement a Voice-Management but for now, it is only a dummy.
+// VoiceHandler voiceHandlers[4];
 
   uint8_t velocity = 100;
-  uint8_t pitch = 65;
+  uint8_t pitch = 60;
   int soundplays = 0;
 
+  // Display
+  SSD1306  display(0x3c, 5, 4); // OLED via I2C Labeled GPIO 5,4
+
+  // SD-Card
+  bool sdmounted = false;
+
+
+// #####################################################
+// ##
+// ## SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP ##
+// ##
+// #####################################################
   
 void setup()
 {
   soundplays = 0;
-  WiFi.mode(WIFI_OFF);
+  // WiFi.mode(WIFI_OFF);
 
   Serial.begin(115200);
-  delay(1000);
-  file1 = new AudioFileSourcePROGMEM( angels, sizeof( angels ) ); // long duration
-  file2 = new AudioFileSourcePROGMEM( angels, sizeof( angels ) ); // long duration
-  file3 = new AudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // short duration
-  file4 = new AudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // short duration
+  delay(100);
 
-  out = new AudioOutputI2Sesp32();
+  // digitalWrite(27, LOW);
+  if( !SD.begin( 13 )){ // Pin 13 used as CS-PIN for the SDCard
+    Serial.println("Card Mount Failed");
+    Serial.println("Missing SDCard" );
+    
+    display.clear();
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_16);
+    display.drawStringMaxWidth(0 , 10 , 128, "card mount failed" );
+    display.drawStringMaxWidth(0 , 45 , 128, "missing SDCard" );
+    display.display();
+    yield(); 
+    sdmounted = false;
+    //  wavnum = 0;
+  } else {
+    sdmounted = true; 
+    // wavnum = 0;         
+  }
+/*
+  voiceHandlers[0].buttonTouchSensor = T8;
+  // String filename1="/EMU_PC/Jazz Drums/Jazz Drums(01).wav"; //BD
+  voiceHandlers[1].buttonTouchSensor = T7;
+  voiceHandlers[2].buttonTouchSensor = T5;
+  voiceHandlers[3].buttonTouchSensor = T6;
+  
+  voiceHandlers[0].filename="/mpc1000/105_Moody.wav"; // Loop
+  voiceHandlers[1].filename="/EMU_PC/Jazz Drums/Jazz Drums(04).wav"; // SN
+  voiceHandlers[2].filename="/EMU_PC/Jazz Drums/Jazz Drums(11).wav"; // Hihat
+  voiceHandlers[3].filename="/EMU_PC/Jazz Drums/Jazz Drums(33).wav"; // Ride
+*/
+/*
+  File dataFile = SD.open("/mpc1000/105_Moody.wav", FILE_READ);
+  Serial.print("Size: ");
+  int datasize =  dataFile.size();
+
+  // max 100 KMByte 
+  if (datasize > 100000) {
+    datasize = 100000;
+  }
+  Serial.print(datasize);
+
+  uint8_t String3_5 [100000];
+  int String3_5_size = datasize;
+  
+  // int String3_5 [datasize];
+  if (dataFile) {
+    for ( int index = 0; index < datasize; index++) {
+      uint8_t input = reinterpret_cast<uint8_t> ( dataFile.read()) ;
+      String3_5[index] = input;
+      // Serial.println(input);
+    }
+    dataFile.close();
+  }
+*/
+/* 
+  String str = voiceHandlers[0].filename ; 
+  int str_len = str.length() + 1;  // Length (with one extra character for the null terminator)
+  char char_array1[str_len]; // Prepare the character array (the buffer) 
+  str.toCharArray( char_array1, str_len );       // Copy it over 
+  file1 = new SampleAudioFileSourceSD( char_array1 ); // long duration
+*/
+ 
+/*
+  String str2 = voiceHandlers[0].filename ; 
+  int str_len2 = str2.length() + 1;  // Length (with one extra character for the null terminator)
+  char char_array2[str_len2]; // Prepare the character array (the buffer) 
+  str2.toCharArray( char_array2, str_len2 );       // Copy it over 
+  // file2 = new SampleAudioFileSourceSD( char_array2 ); // long duration
+  */
+  file1  = new SampleAudioFileSourcePROGMEM( arabicbass, sizeof(arabicbass) ); // nothing, only zeros and mono
+  file2  = new SampleAudioFileSourcePROGMEM( angels, sizeof( angels) ); // nothing, only zeros and mono
+  file3  = new SampleAudioFileSourcePROGMEM( angels, sizeof( angels ) ); // short duration  
+  file4  = new SampleAudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // short duration
+
+  // define Output via I2S-Soundcard connected to the ESP32
+  out = new SampleAudioOutputI2Sesp32();
   // Adjust Volume of Output
-  out->SetGain(0.2);
-
-  // out2 = new AudioOutputI2S();
-  // out2->SetGain(0.2);
-  // out2->SetPinout(26, 25, 33); // the original loibrary uses pin 22 rather than 33 for DIN
+  out->SetGain(0.3);
   
-  wav1 = new AudioGeneratorSAMPLE();
-  wav2 = new AudioGeneratorSAMPLE();
-  wav3 = new AudioGeneratorSAMPLE();
-  wav4 = new AudioGeneratorSAMPLE();
+  wav1 = new SampleAudioGeneratorSAMPLE();
+  wav2 = new SampleAudioGeneratorSAMPLE();
+  wav3 = new SampleAudioGeneratorSAMPLE();
+  wav4 = new SampleAudioGeneratorSAMPLE();
   
-  Serial.println("Define MainOut of Mixer");
-  // new with Mixer, connect mainOut to the output
-  mainOut = new AudioMixerOutBuffer( 2, out );
-  
-  mainOut->SetRate(44100);
-  mainOut->SetChannels(2); // 2=Stereo, 1=Mono
-  mainOut->SetBitsPerSample(16); // 16 Bit
+  Serial.println("Define mixer of Mixer");
+  // new with Mixer, connect mixer to the output
+  mixer = new SampleAudioMixerOutBuffer( 32, out );
 
-  Serial.println("Begin MainOut");
-  mainOut->begin();
+  // once we have to set the settings for the output...
+  mixer->SetRate(44100);
+  mixer->SetChannels(2); // 2=Stereo, 1=Mono
+  mixer->SetBitsPerSample(16); // 16 Bit
 
-  // define channel1 of the Mixer and strip it to mainOut as Strip 1
-  // defined with buffersize==8, sink==mainout, channelnumber==1
+  Serial.println("Begin mixer");
+  mixer->begin();
+
+  // define channel1 of the Mixer and strip it to mixer as Strip 1
+  // defined with buffersize==32, sink==mixer, channelnumber==1
   Serial.println("Define Channel1 of Mixer");
-  channel1 = new AudioMixerInBuffer( 8, mainOut, 1 );
+  channel1 = new SampleAudioMixerInBuffer( 32, mixer, 1 );
+  channel1->begin();
 
-  // define channel2 of the Mixer and strip it to mainOut as Strip 2
+  // define channel2 of the Mixer and strip it to mixer as Strip 2
   Serial.println("Define Channel2 of Mixer");  
-  channel2 = new AudioMixerInBuffer( 8, mainOut, 2 );
+  channel2 = new SampleAudioMixerInBuffer( 32, mixer, 2 );
   channel2->begin();
 
   Serial.println("Define Channel3 of Mixer");  
-  channel3 = new AudioMixerInBuffer( 8, mainOut, 3 );
+  channel3 = new SampleAudioMixerInBuffer( 32, mixer, 3 );
   channel3->begin();
-  
+/*  
   Serial.println("Define Channel4 of Mixer");  
-  channel4 = new AudioMixerInBuffer( 8, mainOut, 4 );
+  channel4 = new SampleAudioMixerInBuffer( 2, mixer, 4 );
   channel4->begin();
-
+*/
   Serial.println("Begin Wav1");
+  wav1->setSamplePlaytype(1); // loop
+  Serial.println("The Drum will play in a loop without the need to start it really new, - check the Serial-Log");
   wav1->begin(file1, channel1, velocity, pitch );
-  wav2->begin(file2, channel2, velocity, uint8_t( pitch + 4 ) );
-  wav3->begin(file3, channel3, velocity, uint8_t( pitch + 7 ) );
-  wav4->begin(file4, channel4, velocity, uint8_t( pitch + 12 ) );
+
+  Serial.println("Begin Wav2");
+  wav2->begin(file2, channel2, velocity, uint8_t( pitch -7 ) );
+  
+  Serial.println("Begin Wav3");
+  wav3->begin(file3, channel3, velocity, uint8_t( pitch +7 ) );
+  // wav4->begin(file4, channel4, velocity, uint8_t( pitch + 12 ) );
  
 }
 
 void loop()
 {
+
+  yield();
   if (wav1->isRunning()  ) {
+    // This Code is something like "noteOff"
     if (!wav1->loop() ) {
       soundplays =soundplays + 1;
       wav1->stop(); 
       channel1->stop();
       yield();
-      if ( soundplays < 40 ){
-       file1 = new AudioFileSourcePROGMEM( angels, sizeof( angels ) ); // long duration
-        wav1->begin(file1, channel1, velocity, pitch); // channel1
+      delete file1;
+    }
+  }  
+
+  if ( !wav1->isRunning()  ) {   
+    if ( soundplays < 1 ){
+        /*
+        String str = voiceHandlers[0].filename ; 
+        int str_len = str.length() + 1;  // Length (with one extra character for the null terminator)
+        char char_array1[str_len]; // Prepare the character array (the buffer) 
+        str.toCharArray( char_array1, str_len );       // Copy it over 
+        
+        file1 = new SampleAudioFileSourceSD( char_array1 ); // long duration
+        */
+        // the code inside this block could be used as a "NoteOn"
+        file1 = new SampleAudioFileSourcePROGMEM( angels, sizeof( angels ) ); // long duration
+        Serial.print( soundplays );
+        Serial.println("Begin Wav1");
+        wav1->begin(file1, channel1 , velocity, pitch); // channel1
       }  
     }  
-  } 
 
-  if (wav2->isRunning()  ) {
-    if (!wav2->loop() ) {
+  if ( wav2->isRunning()  ) {
+    if ( !wav2->loop() ) {
       soundplays =soundplays + 1;
       wav2->stop(); 
       channel2->stop();
       yield();
-      if ( soundplays < 40 ){
-        file2 = new AudioFileSourcePROGMEM( angels, sizeof( angels ) ); // sound with short duration
-        wav2->begin(file2, channel2, velocity, uint8_t(pitch+7) );
-      }  
+      delete file2;
+    }
+  }
+
+  if ( !wav2->isRunning()  ) {
+    if ( soundplays < 40 ){
+      /*String str2 = voiceHandlers[1].filename ; 
+      int str_len2 = str2.length() + 1;  // Length (with one extra character for the null terminator)
+        char char_array2[ str_len2 ]; // Prepare the character array (the buffer) 
+        str2.toCharArray( char_array2, str_len2 );       // Copy it over 
+        //file2 = new SampleAudioFileSourceSD( char_array2 ); // sound with short duration
+      */
+      file2 = new SampleAudioFileSourcePROGMEM( angels, sizeof(angels) ); // short duration
+      Serial.print( soundplays );
+      Serial.println("Begin Wav2");
+      wav2->begin(file2, channel2, velocity, pitch );
+    }  
+  }
+  
+  
+ 
+
+  yield();
+  if (wav3->isRunning()  ) {
+    if (!wav3->loop() ) {
+      soundplays =soundplays + 1;
+      wav3->stop(); 
+      channel3->stop();
+      yield();
+      delete file3;
     }
   } 
-
+    
+  if ( !wav3->isRunning()  ) {   
+    if ( soundplays < 40 ){
+        file3 = new SampleAudioFileSourcePROGMEM( angels, sizeof(angels) ); // long duration
+        // file1 = new SampleAudioFileSourcePROGMEM( angels, sizeof( angels ) ); // long duration
+        Serial.print( soundplays );
+        Serial.println("Begin Wav3");
+        wav3->begin(file3, channel3, velocity, uint8_t( pitch + 7 ) ); // channel1
+      }  
+    }  
+  
+/*
 
   if (wav3->isRunning()   ) {
     if (!wav3->loop() ) {
@@ -164,8 +322,9 @@ void loop()
       wav3->stop(); 
       channel3->stop();
       yield();
-      if ( soundplays < 40 ){
-        file3 = new AudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // sound with short duration
+      delete file3;
+      if ( soundplays < 400 ){
+        file3 = new SampleAudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // sound with short duration
         wav3->begin(file3, channel3, velocity, uint8_t(pitch) );
       }  
     }
@@ -177,19 +336,21 @@ void loop()
       wav4->stop(); 
       channel4->stop();
       yield();
-      if ( soundplays < 40 ){
-        file4 = new AudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // sound with short duration
+      delete file4;
+      if ( soundplays < 400 ){
+        file4 = new SampleAudioFileSourcePROGMEM( arabicbass, sizeof( arabicbass ) ); // sound with short duration
         wav4->begin(file4, channel4, velocity, uint8_t(pitch-12) );
       }  
     }
   } 
+*/
 
 
-
-  if ( soundplays > 50 ){
+  if ( soundplays > 45 ){
     // Stop
-    soundplays = 0;
-    }
+    Serial.println ( soundplays );
+    // soundplays = 0;
+  }
 
 /*  
   // Stop the Output if all is done ..
@@ -200,4 +361,3 @@ void loop()
   */
   
 }
-
