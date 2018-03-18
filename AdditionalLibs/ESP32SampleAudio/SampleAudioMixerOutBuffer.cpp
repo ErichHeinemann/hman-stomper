@@ -23,7 +23,6 @@
   E.Heinemann 2018
   
   Based on the work from Earle F. Philhower, III
-
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -34,7 +33,6 @@
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include <Arduino.h>
@@ -128,16 +126,14 @@ bool SampleAudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChann
   bool vreturn = false; // calculated returnvalue
   
     // Wrong MixChannelNo?
-  if ( mixChannelNo > 15 ) 
-  {
+  if ( mixChannelNo > 15 )   {
 	  return false;
   } 
   
   // is the buffer of this channel already updated then we don´t need that sample yet??
-  if ( updatedSample[ mixChannelNo] == 0 )
-  {
-     leftComuSample  += sample[LEFTCHANNEL]; // equivalent of value = value + Mat_data_vektor[i];
-     rightComuSample += sample[RIGHTCHANNEL]; // equivalent of value = value + Mat_data_vektor[i];
+  if ( updatedSample[ mixChannelNo] == 0 )  {
+     leftComuSample  += (sample[LEFTCHANNEL]/4); // equivalent of value = value + Mat_data_vektor[i];
+     rightComuSample += (sample[RIGHTCHANNEL]/4); // equivalent of value = value + Mat_data_vektor[i];
      storeSampleFlag = true;  
      vreturn         = true;
      updatedSample[ mixChannelNo] = 1;
@@ -162,17 +158,15 @@ bool SampleAudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChann
    }
    
    
-   int checkval = 0; // it counts the mixerchannels which did not get an update
-   for( int i=0; i<= 15; i++ )
-   {
-     if ( activeChannel[i] == 1 && updatedSample[ i ] == 0  ) 
-     {
-       checkval +=1;
-	 } 
-   }
+  int checkval = 0; // it counts the mixerchannels which did not get an update
+  for( int i=0; i<= 15; i++ )  {
+    if ( activeChannel[i] == 1 && updatedSample[ i ] == 0  )   {
+      checkval +=1;
+      break;
+    } 
+  }
    
-   if ( checkval== 0 )
-   {    
+  if ( checkval== 0 ) {    
       #ifdef AudioDebug 
         Serial.println( "MOB Free Up" );
       #endif
@@ -184,21 +178,29 @@ bool SampleAudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChann
        filled = true;
    	   // return vreturn; // this is the wrong answer ... but anyhow
      }
-     
+     else {
 	 // calculate a new sample based on a mix of comulated values ...
-     leftSample[writePtr]  = LimitSample( leftComuSample ); // sample[LEFTCHANNEL];
-     rightSample[writePtr] = LimitSample( rightComuSample ); // sample[RIGHTCHANNEL];
-     writePtr = nextWritePtr;
-     
-	 // Reset all Values in the buffers
-	 for( int i=0; i<= 15; i++ )
-	 {
-		updatedSample[ i ] =0;
-	  }
-	  leftComuSample   = 0;
-	  rightComuSample  = 0;
+     // leftSample[writePtr]  = LimitSample( leftComuSample ); // sample[LEFTCHANNEL];
+     // rightSample[writePtr] = LimitSample( rightComuSample ); // sample[RIGHTCHANNEL];
+ 
+       leftSample[writePtr]  = ( leftComuSample ); // sample[LEFTCHANNEL];
+       rightSample[writePtr] = ( rightComuSample ); // sample[RIGHTCHANNEL];
+        writePtr = nextWritePtr;
+        // Reset all Values in the buffers
+	    for( int i=0; i<= 15; i++ )
+	    {
+          updatedSample[ i ] =0;
+        }
+	    leftComuSample   = 0;
+	    rightComuSample  = 0;
+     }
+ 
+ 
    }
-   
+    
+    
+   // this works only in Stereo .. therefore we do not need the conversation of it...  
+   /*
    if ( storeSampleFlag == false && updatedSample[ mixChannelNo] == 0 )
    {
       leftComuSample  += sample[LEFTCHANNEL]; 
@@ -207,6 +209,7 @@ bool SampleAudioMixerOutBuffer::MixConsumeSample(int16_t sample[2], int mixChann
       vreturn = true;
       updatedSample[ mixChannelNo] = 1; 
    }
+   */
    return vreturn;
 
 }

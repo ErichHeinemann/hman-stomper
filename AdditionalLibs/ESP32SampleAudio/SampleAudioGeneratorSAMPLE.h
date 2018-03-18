@@ -36,9 +36,13 @@ class SampleAudioGeneratorSAMPLE : SampleAudioGenerator
     virtual bool stop() override;
     virtual bool isRunning() override;
     // virtual bool setLP( uint8_t lptone );
+    
+    virtual bool disableFilter(); // disables all filters
+    
     virtual bool setLPFilter( uint8_t freq, uint8_t reso );
     virtual bool setHPFilter( uint8_t freq, uint8_t reso );
     virtual bool setReverb( );
+    virtual bool setSamplePlaytype( uint8_t playtype);
     void SetBufferSize(int sz) { buffSize = sz; }
 
   private:
@@ -60,10 +64,12 @@ class SampleAudioGeneratorSAMPLE : SampleAudioGenerator
     
 
   inline int16_t AmplifyByVelocity( int16_t s) {
+  
     int32_t v = (s * veloci)>>7;
     if (v < -32767) return -32767;
     else if (v > 32767) return 32767;
-    else return (int16_t)(v&0xffff);
+    else return (int16_t)(v); // &0xffff);
+    return s;
   }
     
     
@@ -78,6 +84,8 @@ class SampleAudioGeneratorSAMPLE : SampleAudioGenerator
     uint32_t realsamples;
     uint32_t fillSamples;
         
+    uint32_t availBytes;
+            
     // We need to buffer some data in-RAM to avoid doing 1000s of small reads
     uint32_t buffSize;
     uint8_t *buff;
@@ -87,6 +95,9 @@ class SampleAudioGeneratorSAMPLE : SampleAudioGenerator
     // uint16_t rawvalue; //  = 127;
     
     int16_t lastSampleLP ;
+    uint8_t playtype=0; // 0 = Oneshot, 1=loop, 2=loop and release, 
+    uint32_t samplestartpos;
+    
 };
 
 #endif

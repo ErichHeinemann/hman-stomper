@@ -1,6 +1,5 @@
 /*
 AudioMixerInBuffer
-
   Adds additional bufferspace and a Mixer-Input-Channelstrip to the Mixer 
   
   Like in the real world with the electronic equipment from musicians or a DJ, 
@@ -24,7 +23,6 @@ AudioMixerInBuffer
   E.Heinemann 2018
   
   Based on the work from Earle F. Philhower, III
-
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -35,7 +33,6 @@ AudioMixerInBuffer
   GNU General Public License for more details.
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 

@@ -20,9 +20,9 @@
 
 
 #include "SAMPLEAudioGeneratorSAMPLE.h"
-// #include "AudioFilter.h"
+// #include "SampleAudioFilter.h"
 // #include "AudioReverb.h"
-// #include "AudioMidiFrequencies.h"
+// #include "SampleAudioMidiFrequencies.h"
 
 SampleAudioGeneratorSAMPLE::SampleAudioGeneratorSAMPLE()
 {
@@ -30,21 +30,26 @@ SampleAudioGeneratorSAMPLE::SampleAudioGeneratorSAMPLE()
   running  = false;
   file     = NULL;
   output   = NULL;
-  buffSize = 512; // 128
+  buffSize = 256; // 128
   buff     = NULL;
   buffPtr  = 0; // Pointer
   buffLen  = 0; // Length
+
   veloci   = 0;
   pit      = 65; // Mid of the range
   playedSamples = 0;
   fillSamples   = 0;
+  
   //smoothvalue = 0;
   // rawvalue = 127;
+  
   activeLPFilter = false;
   activeHPFilter = false;
   activeReverb = true;
-  myReso = 65;
-  myFreq = 65;
+  playtype = 0; // oneshot
+  
+  myReso = 65; // Mid of Range 0-127
+  myFreq = 65; // Mid of Range 0-127
   
 }
 
@@ -57,11 +62,11 @@ SampleAudioGeneratorSAMPLE::~SampleAudioGeneratorSAMPLE()
 bool SampleAudioGeneratorSAMPLE::stop()
 {
   if (!running) return true;
-  running = false;
+  running       = false;
   free(buff);
-  buff = NULL;
-  playedSamples =0;
-  fillSamples =0;
+  buff          = NULL;
+  playedSamples = 0;
+  fillSamples   = 0;
   return file->close();
 }
 
@@ -81,7 +86,9 @@ bool SampleAudioGeneratorSAMPLE::GetBufferedData(int bytes, void *dest)
     // Potentially load next batch of data...
     if (buffPtr >= buffLen) {
       buffPtr = 0;
+      uint32_t toRead = availBytes > buffSize ? buffSize : availBytes;
       buffLen = file->read( buff, buffSize );
+      availBytes -= buffLen;
     }
     if (buffPtr >= buffLen)
       return false; // No data left!
@@ -115,7 +122,7 @@ bool SampleAudioGeneratorSAMPLE::loop()
   }
   */
   
-    if (!running) goto done; // Nothing to do here!
+  if (!running) goto done; // Nothing to do here!
     
   if (!output->ConsumeSample(lastSample)) goto done; // Can't send, but no error detected
 
@@ -136,7 +143,16 @@ bool SampleAudioGeneratorSAMPLE::loop()
       lastSample[SampleAudioOutput::RIGHTCHANNEL] = r;
     } else if (bitsPerSample == 16) {
         if (!GetBufferedData(2, &lastSample[SampleAudioOutput::LEFTCHANNEL])) {
-          stop(); 
+          // reset for looping
+          if ( playtype == 1) {
+            file->seek( samplestartpos, SEEK_SET );
+            yield();
+            if (!GetBufferedData(2, &lastSample[SampleAudioOutput::LEFTCHANNEL])) {
+              Serial.println("No New DATA Found !!");
+            }
+           } else { 
+            stop(); 
+           } 
         }
         
         
@@ -262,7 +278,12 @@ bool AudioGeneratorSAMPLE::setLP( uint8_t lptone ){
  return true;
  }
  */
- 
+
+bool SampleAudioGeneratorSAMPLE::disableFilter(){
+  activeLPFilter = false;
+  activeHPFilter = false;
+  return true;
+} 
  
 bool SampleAudioGeneratorSAMPLE::setLPFilter( uint8_t freq, uint8_t reso ){
   activeLPFilter = true;
@@ -274,9 +295,9 @@ bool SampleAudioGeneratorSAMPLE::setLPFilter( uint8_t freq, uint8_t reso ){
   } 
   if (reso <= 127 ) {
     myReso = reso;
-  }  
+  } 
+  return true; 
 }
-
 
 bool SampleAudioGeneratorSAMPLE::setHPFilter( uint8_t freq, uint8_t reso ){
   activeLPFilter = false;
@@ -288,13 +309,21 @@ bool SampleAudioGeneratorSAMPLE::setHPFilter( uint8_t freq, uint8_t reso ){
   } 
   if (reso <= 127 ) {
     myReso = reso;
-  }  
+  } 
+  return true; 
 } 
 
 
 bool SampleAudioGeneratorSAMPLE::setReverb( ){
   activeReverb = true;
+  return true;
 }  
+
+
+bool SampleAudioGeneratorSAMPLE::setSamplePlaytype( uint8_t sampleplaytype) {
+  playtype = sampleplaytype;
+}
+    
 
 bool SampleAudioGeneratorSAMPLE::ReadWAVInfo()
 {
@@ -335,17 +364,52 @@ bool SampleAudioGeneratorSAMPLE::ReadWAVInfo()
 
   // look for data subchunk
   do {
-    // id == "data"
     if (!ReadU32(&u32)) return false;
+    /*
+    // == sampl
+    if (u32 == 0x736D706C) {
+      if (!ReadU32(&chunkdatasize)) return false;
+      if (!ReadU32(&manufacturer)) return false;
+      if (!ReadU32(&product)) return false;
+      if (!ReadU32(&sampleperiod)) return false;
+      if (!ReadU32(&midiunitynote)) return false;
+      if (!ReadU32(&midipitchfraction)) return false;
+      if (!ReadU32(&smtpeformat)) return false;
+      if (!ReadU32(&smtpeoffset)) return false;
+      if (!ReadU32(&numsampleloops)) return false;
+      if (!ReadU32(&samplerdata)) return false;
+      
+      if (samplerdata == 0x0 ){
+		  if (!ReadU32(&loopcuepointid)) return false;
+		  if (!ReadU32(&looptype)) return false;  
+		  if (!ReadU32(&loopstart)) return false;
+		  if (!ReadU32(&loopend)) return false; 
+		  if (!ReadU32(&loopfraction)) return false; 
+		  if (!ReadU32(&looopplaycount)) return false;   
+      }
+    } 
+    */
+    //  == "data"
+    
     if (u32 == 0x61746164) break; // "data"
     // Skip size, read until end of chunk
     if (!ReadU32(&u32)) return false;
+
+    
     file->seek(u32, SEEK_CUR);
+    
   } while (1);
+  samplestartpos = file->getPos();
+  
+  // Serial.print ("Position:");
+  // Serial.println( file->getPos() );
+    
+      
   if (!file->isOpen()) return false;
 
   // Skip size, read until end of file...
   if (!ReadU32(&u32)) return false;
+  availBytes = u32;
       
   // Now set up the buffer or fail
   buff = reinterpret_cast<uint8_t *>(malloc(buffSize));
@@ -355,6 +419,11 @@ bool SampleAudioGeneratorSAMPLE::ReadWAVInfo()
 
   return true;
 }
+
+/*bool SampleAudioGeneratorSAMPLE::begin2(SampleAudioFileSourceSD *source, SampleAudioOutput output, uint8_t velocity, uint8_t pitch ){
+  return ( SampleAudioGeneratorSAMPLE::begin (source, output, velocity, pitch ) );
+}
+*/
 
 bool SampleAudioGeneratorSAMPLE::begin(SampleAudioFileSource *source, SampleAudioOutput *output, uint8_t velocity, uint8_t pitch )
 {
@@ -366,8 +435,22 @@ bool SampleAudioGeneratorSAMPLE::begin(SampleAudioFileSource *source, SampleAudi
   }
   if ( pitch >=36 && pitch <=84 ) {
     pit = pitch;
+  }  
+  
+  
+  if ( activeLPFilter == true ) {
+    filter = new SampleAudioFilter(); 
   }
   
+  /*
+  if ( activeLPFilter == true ) {
+    filter = new AudioFilter(); 
+  }
+  
+  if (activeReverb == true){
+    reverb = new AudioReverb();
+  }
+  */
   
   
   if (!source) return false;
