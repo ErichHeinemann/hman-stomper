@@ -1,38 +1,15 @@
 // #include <Arduino.h>
 
-// Erich Heinemann 2018-03-24 
+// Erich Heinemann 2018-03-24
+// Open / ToDo:
+// 1. SD-Card-Support
+// 2. Storing the Settings in Eeprom
+// 3. Volume not working
+// 4. Touch not working
+
 // Most Libraries where transformed from code from Erle Phil Hower from the ESP8266-Audio-Project
 // My Code is not that stable and still changing. If I could get the right point, this code will join the code of the ES8266-Audio-Project!
 
-
-/* 
-It is still not all implemented but it works as a cool Stomp-Box.
-The wiring will be explained in another doc
-
-Done:
-Triggering of wav-samples via Piezo or Button (closing button)
-
-open:
-- read and play files from SD-Card (worked only once)
-- looping (the setting does not to care of the settings of the preset
-- Storing the settings in the Eeprom
-- List of complete Material
-
-List of common Material
-- 1 Display, I2C OLED 128x64 0.96"
-- 1 I2S - Audio DAC
-- 1 Button
-- Piezo
-- 2 Resistors 10K
-- 1 Resistor 1M
-- 1 Zehner-Diode 3.3V
-- 1 Diode 4xxx
-- ESP32 Dev-Board (i used one with integrated OLED on Pin 4,5)
-- Rotary Encoder (3 Pin + Button)
-- Button if Rotary Encoder does not include one
-
-
-*/
 
 #include "FS.h"
 #include "SD.h"
@@ -57,12 +34,7 @@ List of common Material
 #include <Wire.h>  
 #include "SSD1306.h"
 
-// WAV-Files which where converted from WAV-Files into HEX-Files!
-// You have to use Your own samples because of the different regulation with using samples etc.
-// I belive, Youhave Your own preferences and You are able to convert them by Your own.
-
-// I have planned to record some real drum-samples by my own but currently my used samples are from diffrent sources 
-
+// WAV-Files
 // WAV-Files, MONO 44.1 KBIT/s 16Bit
 #include "fatbass.h"
 #include "softkick.h"
@@ -101,8 +73,8 @@ SampleAudioFileSourceSD      *fileB; // SD-Card
 
 SampleAudioOutputI2Sesp32    *out;
 
-SampleAudioMixerInBuffer     *channel1;
-SampleAudioMixerOutBuffer    *mixer;
+// SampleAudioMixerInBuffer     *channel1;
+// SampleAudioMixerOutBuffer    *mixer;
 
 PresetHandler  *presethandlers[20];
 
@@ -220,7 +192,7 @@ int  pthreshold =   1;
 bool   sdmounted = false;
 int    wavnum = 0;
 String category    = "";
-String wavfilesc[20]; // We load only 20 Sounds , .. the same number as internal sounds ...
+// String wavfilesc[20]; // We load only 20 Sounds , .. the same number as internal sounds ...
 
 int16_t buflastSample[2];
 
@@ -546,7 +518,7 @@ void midiNoteOn( int &mypitch, int &midiVelocity, int &sound , int &mybank, Stri
       // out->SetGain( 0.4 );
       // wav = new SampleAudioGeneratorSAMPLE();
       // wav->begin( fileA, out, midiVelocity, mypitch );
-      wav1->begin(fileA, out, 100, mypitch ); // channel1
+      wav1->begin(fileA, out, midiVelocity, mypitch ); // channel1
       // Serial.println( "wav->begin" );
     }
   }
@@ -791,7 +763,8 @@ void menuTask(  ){
         if (presethandlers[activePreset]->bank == 0) {
           display.drawStringMaxWidth( 28, 24, 128, (String) samplenames1[ presethandlers[activePreset]->progmemNumber ] ); // + (String) s);
           display.drawStringMaxWidth( 28, 40, 128, (String) samplenames2[ presethandlers[activePreset]->progmemNumber ] ); // + (String) s);
-        } else {
+        }
+        /* else {
           // split filename and show filename of SD-Card File...  
           String filenameTemp = (String)  (presethandlers[activePreset]->filenamestr );
           // First get the Progmem of the existing Filename or put them into the Array of wavfilesc
@@ -803,6 +776,7 @@ void menuTask(  ){
           display.drawStringMaxWidth( 28, 24, 128, filenameTemp.substring( 1,11) ); // + (String) s);
           display.drawStringMaxWidth( 28, 40, 128, filenameTemp.substring(12,21) ); // + (String) s);
         }
+        */
         // display.setFont(ArialMT_Plain_16);
         display.drawStringMaxWidth( 28,  0, 128, menu1[2]);
         display.display();
@@ -1081,3 +1055,7 @@ void loop() {
   yield();
   
 }
+
+
+
+
