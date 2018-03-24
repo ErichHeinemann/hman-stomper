@@ -81,6 +81,10 @@ The maximum hardware-setup then: 1 ESP32-Devboard, 1 Piezo, DAC pcm5102, 1x SDCa
 
 I used a USB-Powerbank as the Powersupply which works well.
 
+Status 2018-03-24
+- A version for a Stompbox is now available but only for WAV-Files in PROGMEM.
+- The best place to get Your own Samples is http://samples.kb6.de/downloads.php, You only have to search the right once and then transform them into Hex-Files.
+
 Status 2018-02-17
 - Sampleplay works
 - Sample could be tuned/pitched by 12 semitones up and down (basenote is 60 = c4, range 48 to 72)
